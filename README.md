@@ -5,6 +5,8 @@
 
 **本番はiPad**（タッチ操作前提で最適化済み）
 
+**公開URL**: https://fragrance-spot-lab.github.io/fragrance-spot/
+
 ---
 
 ## ファイル構成
@@ -14,6 +16,7 @@
 | `fragrance-spot.html` | **編集するのはこれ**。`assets/w/*.webp` を参照する開発版 |
 | `fragrance-spot-standalone.html` | 配布用。画像をdata URIで埋め込んだ単一ファイル。**直接編集しない**（生成物） |
 | `build-standalone.py` | 開発版 → 配布版を生成するスクリプト |
+| `index.html` | GitHub Pages の入口。`fragrance-spot.html` と同一（生成物・直接編集しない） |
 | `assets/w/*.webp` | サイトが使う最適化済み画像（これだけリポジトリに含む） |
 
 ---
@@ -34,6 +37,9 @@ python3 -m http.server 8000
 ```bash
 python3 build-standalone.py
 ```
+
+`fragrance-spot-standalone.html`（配布用）と `index.html`（Pages用）の両方が更新される
+push すると数分で公開URLに反映される
 
 ---
 

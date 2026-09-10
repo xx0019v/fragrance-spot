@@ -33,5 +33,10 @@ def main():
     print(f"{len(refs)} 点を埋め込み ({total/1024:.0f} KB) -> {DST} "
           f"({os.path.getsize(DST)/1024/1024:.2f} MB)")
 
+    # GitHub Pages の入口（URL直下で開けるようにする）
+    import shutil
+    shutil.copyfile(SRC, "index.html")
+    print("index.html を更新（GitHub Pages の入口 / 中身は fragrance-spot.html と同一）")
+
 if __name__ == "__main__":
     main()
