@@ -1,6 +1,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fragrance Spot 香り診断</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fragrance Spot">
+<meta name="theme-color" content="#140A0E">
 <meta name="description" content="かわせみ祭 × 高崎モントレー Fragrance Spot 4つの問いで導く あなたのための香りの処方">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -614,6 +619,10 @@ button,a,.opt,.link{touch-action:manipulation;-webkit-tap-highlight-color:transp
 
 /* 透かしの四角が出るため撤去 */
 .result .formula::after{display:none}
+
+/* キオスク運用：長押しの選択メニューとダブルタップズームを抑止 */
+html,body{-webkit-touch-callout:none}
+body{overscroll-behavior:none}
 </style>
 
 <!-- ===================== ヘッダー ===================== -->
@@ -852,7 +861,7 @@ function renderStatic(){
 
 /* ---- 診断フロー ---- */
 let lastFocus=null;
-function openQuiz(){state.idx=0;state.answers={};lastFocus=document.activeElement;quiz.classList.add("open");document.body.style.overflow="hidden";renderQuestion(true);}
+function openQuiz(){advancing=false;state.idx=0;state.answers={};lastFocus=document.activeElement;quiz.classList.add("open");document.body.style.overflow="hidden";renderQuestion(true);}
 function closeQuiz(){quiz.classList.remove("open");document.body.style.overflow="";lastFocus&&lastFocus.focus&&lastFocus.focus();}
 function updateProgress(){$("#qNum").textContent=String(state.idx+1).padStart(2,"0");$("#qBar").style.width=((state.idx+1)/QUESTIONS.length*100)+"%";}
 function renderQuestion(first){
@@ -873,11 +882,25 @@ function renderQuestion(first){
   };
   if(first)build();else{panel.classList.add("leave");setTimeout(build,prefersReduced?0:210);}
 }
+/* 連打・二度押し対策：遷移中は次の入力を受け付けない
+   （iPadでの二度押しで質問が飛び 未回答のまま結果に進む不具合を防ぐ） */
+let advancing=false;
 function choose(q,opt,btn){
+  if(advancing)return;
+  advancing=true;
+  const panel=$("#qPanel"); if(panel)panel.style.pointerEvents="none";
   state.answers[q.id]=opt.v;$$("#qPanel .opt").forEach(o=>o.classList.remove("chosen"));btn.classList.add("chosen");
-  setTimeout(()=>{if(state.idx<QUESTIONS.length-1){state.idx++;renderQuestion(false);}else showResult();},prefersReduced?0:230);
+  setTimeout(()=>{
+    if(state.idx<QUESTIONS.length-1){state.idx++;renderQuestion(false);}else showResult();
+    advancing=false;
+    const p2=$("#qPanel"); if(p2)p2.style.pointerEvents="";
+  },prefersReduced?0:230);
 }
-function goBack(){if(state.idx===0){closeQuiz();return;}state.idx--;renderQuestion(false);}
+function goBack(){
+  if(advancing)return;
+  if(state.idx===0){closeQuiz();return;}
+  state.idx--;renderQuestion(false);
+}
 
 /* ---- 結果（処方ラベル） ---- */
 function showResult(){
